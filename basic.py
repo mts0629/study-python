@@ -69,6 +69,7 @@ Usage: thingy [OPTIONS]
     # 3 times 'un', followed by 'ium'
     print(3 * "un" + "ium")
 
+    # Concatenation
     print("Py" "thon")
 
     text = ("Put several strings within parentheses "
@@ -78,8 +79,7 @@ Usage: thingy [OPTIONS]
     prefix = 'Py'
     #print(prefix 'thon')   # Can't concatenate a variable and a string literal
                             # SyntexError: invalid syntax
-
-    print(prefix + 'thon')
+    print(prefix + 'thon')  # '+' operator is valid
 
     word = 'Python'
     print(word[0])  # Character in position 0
@@ -89,11 +89,12 @@ Usage: thingy [OPTIONS]
     print(word[-2]) # Second-last character
     print(word[-6])
 
+    # Slicing: [(start index, included):(end index, excluded)]
     print(word[0:2])    # Characters from position 0 (included) to 2 (excluded)
     print(word[2:5])    # Characters from position 0 (included) to 5 (excluded)
 
-    print(word[:2] + word[2:])  # = word
-    print(word[:4] + word[4:])  # = word
+    print(word[:2] + word[2:])  # (0 to 1) + (2 to end) = word
+    print(word[:4] + word[4:])  # (0 to 3) + (4 to end) = word
 
     # print(word[42])    # IndexError
 
@@ -112,6 +113,64 @@ Usage: thingy [OPTIONS]
     # Length of string
     s = 'supercalifragilisticexpialidocious'
     print(len(s))
+
+
+    # List
+    squares = [1, 4, 9, 16, 25]
+    print(squares)
+
+    # Indexing, slicing
+    print(squares[0])
+    print(squares[-1])
+    print(squares[-3:])
+
+    # Return new list with shallow copy (copy by reference)
+    print(squares[:])
+
+    # Concatenation
+    print(squares + [36, 49, 64, 81, 100])
+
+    # List is mutable
+    cubes = [1, 8, 27, 65, 125] # Something's wrong here
+    cubes[3] = 64 # The cube of 4 is 64
+    print(cubes)
+
+    # Append an item to the tail
+    cubes.append(216)
+    cubes.append(7 ** 3)
+    print(cubes)
+
+    # Assignment to sliced list
+    letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+    print(letters)
+
+    letters[2:5] = ['C', 'D', 'E']
+    print(letters)
+
+    letters[2:5] = []
+    print(letters)
+
+    letters[:] = []
+    print(letters)
+
+    # Length
+    letters = ['a', 'b', 'c', 'd']
+    print(len(letters))
+
+    # Nested list
+    a = ['a', 'b', 'c']
+    n = [1, 2, 3]
+    x = [a, n]
+    print(x)
+    print(x[0])
+    print(x[0][1])
+
+    # Fibonacci series
+    a, b = 0, 1
+    while a < 100:
+        print(a, end=',')
+        a, b = b, (a + b)
+    print('')
 
 
 if __name__ == "__main__":
