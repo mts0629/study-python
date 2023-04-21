@@ -1,5 +1,5 @@
-# python-learning
+# python-study
 
-Pythonの学習記録
+## 参考
 
-[The Python Tutorial](https://docs.python.org/3/tutorial/index.html)
+- [The Python Tutorial](https://docs.python.org/3/tutorial/index.html)
