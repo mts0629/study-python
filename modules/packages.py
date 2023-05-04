@@ -16,3 +16,6 @@ print(echo.get())
 from newmodule.sub1.echo import put, get 
 put("Hello")
 print(get())
+
+from newmodule.sub2.echo import get_twice
+print(get_twice())
