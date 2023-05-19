@@ -36,3 +36,19 @@ with open('write.bin', 'wb+') as f:
     print(f.read(1))
     f.seek(-3, 2)  # Go to the 3rd byte before the end
     print(f.read(1))
+
+import json
+
+x = [1, 'simple', 'list']
+
+# Serialize an object to a JSON formatted string
+print(f"{json.dumps(x)}, {type(json.dumps(x))}")
+
+with open('out.json', 'w', encoding='utf-8') as f:
+    # Serialize the object as a JSON formatted stream
+    json.dump(x, f, indent=4)
+
+with open('out.json', 'r', encoding='utf-8') as f:
+    # Deserialize the JSON file object to a Python object
+    x = json.load(f)
+    print(f"{x}, {type(x)}")
