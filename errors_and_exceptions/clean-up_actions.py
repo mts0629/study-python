@@ -29,4 +29,9 @@ def divide(x, y):
 
 divide(2, 1)        # try -> else -> finally
 divide(2, 0)        # try -> except -> finally
-divide("2", "1")    # try -> finally -> raise TypeError
+# divide("2", "1")    # try -> finally -> raise TypeError
+
+# `with` provides a predefined clean-up action to close file object
+with open("myfile.txt") as f:
+    for line in f:
+        print(line, end="")
