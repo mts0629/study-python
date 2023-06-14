@@ -22,3 +22,15 @@ class Complex:
 # Initialize with values
 x = Complex(3.0, -4.5)
 print(f"{x.r}, {x.i}")
+
+x = MyClass()
+# Data attribute can be appended to an instance
+# like local variable
+x.counter = 1
+while x.counter < 10:
+    x.counter = x.counter * 2
+print(x.counter)
+del x.counter
+
+xf = x.f # Bind method object
+print(xf()) # and call later
