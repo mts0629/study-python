@@ -34,3 +34,54 @@ del x.counter
 
 xf = x.f # Bind method object
 print(xf()) # and call later
+
+class Dog:
+    kind = 'canine' # Class vairable shared by all instances
+
+    def __init__(self, name):
+        self.name = name # Instance variable unique to each instance
+
+d = Dog('Fido')
+e = Dog('Buddy')
+
+print(d.kind) # Shared by all dogs
+print(e.kind)
+
+print(d.name) # Unique to d
+print(e.name) # Unique to e
+
+class Dog:
+    tricks = [] # Mutable object for class variable
+
+    def __init__(self, name):
+        self.name = name
+
+    def add_trick(self, trick):
+        self.tricks.append(trick)
+
+d = Dog('Fido')
+e = Dog('Buddy')
+
+d.add_trick('roll over')
+e.add_trick('play dead')
+
+print(d.tricks) # ['roll over', 'play dead'], Unexpectedly shared by all dogs
+
+class Dog:
+
+    def __init__(self, name):
+        self.name = name
+        self.tricks = [] # Mutable object for instance variable
+
+    def add_trick(self, trick):
+        self.tricks.append(trick)
+
+d = Dog('Fido')
+e = Dog('Buddy')
+
+d.add_trick('roll over')
+e.add_trick('play dead')
+
+print(d.tricks) # ['roll over']
+print(e.tricks) # ['play dead']
+
