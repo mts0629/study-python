@@ -85,3 +85,50 @@ e.add_trick('play dead')
 print(d.tricks) # ['roll over']
 print(e.tricks) # ['play dead']
 
+class Warehouse:
+    purpose = 'storage'
+    region = 'west'
+
+w1 = Warehouse()
+print(w1.purpose, w1.region)
+
+w2 = Warehouse()
+w2.region = 'east'
+print(w1.purpose, w1.region)
+print(w2.purpose, w2.region) # An instance attribute is refered
+
+class Foo:
+    # The first argument of a method: `self` is just a convension
+    def __init__(baz, x):
+        baz.x = x
+
+foo = Foo(10)
+print(foo.x) # 10
+
+# Function defined outside the class
+def f1(self, x, y):
+    return min(x, x+y)
+
+class C:
+    # Functions outside the class can be assigned to class attributes
+    f = f1
+
+    def g(self):
+        return 'hello world'
+
+    h = g # Same with C.g()
+
+class Bag:
+    def __init__(self):
+        self.data = []
+
+    def add(self, x):
+        self.data.append(x)
+
+    def addtwise(self, x):
+        self.add(x) # Methods can be called from an other method
+        self.add(x)
+
+bag = Bag()
+bag.addtwise(1)
+print(bag.data)
