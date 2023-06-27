@@ -13,7 +13,7 @@ python -m pip install numpy
 python -m pip install requests==2.6.0
 
 # Upgrade package to the latest
-python -m install --upgrade requests
+python -m pip install --upgrade requests
 
 # Uninstall package
 python -m pip uninstall numpy
