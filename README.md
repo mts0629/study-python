@@ -23,8 +23,9 @@ Pythonの学習
             ```
 - 仮想環境：venv
     - `$ python -m venv .venv && source .venv/bin/activate`
+- mypy 1.4.1
 
 ## 参考
 
 - [The Python Tutorial](https://docs.python.org/3/tutorial/index.html)
-
+- [mypy documentation](https://mypy.readthedocs.io/en/stable/index.html)
