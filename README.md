@@ -1,4 +1,4 @@
-# python-study
+# study-python
 
 Pythonの学習
 
