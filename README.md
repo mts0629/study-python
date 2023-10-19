@@ -26,9 +26,18 @@ Pythonの学習
 - mypy 1.4.1
 - pytest 7.4.0
 
-## 参考
+## ソースコード・著作権
+
+本リポジトリに含まれるソースコードは、下記で公開されている内容を元に改変を加えたものです。
+
+未改変部の著作権は、原著作者様に帰属します。
 
 - [The Python Tutorial](https://docs.python.org/3/tutorial/index.html)
 - [mypy documentation](https://mypy.readthedocs.io/en/stable/index.html)
 - [pytest documentation](https://docs.pytest.org/en/7.4.x/index.html)
 
+### 改変点
+
+- コーディングスタイルの調整
+- コメントの追加
+- ファイル構成
