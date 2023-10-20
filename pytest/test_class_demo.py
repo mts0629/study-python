@@ -10,4 +10,3 @@ class TestClassDemoInstance:
 
     def test_two(self):
         assert self.value == 1  # The same instance is shared with `test_one`
-

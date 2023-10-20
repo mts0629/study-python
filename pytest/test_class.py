@@ -9,4 +9,3 @@ class TestClass:    # Test class is prefixed with `Test`
     def test_two(self):
         x = "hello"
         assert hasattr(x, "check")  # Fail
-

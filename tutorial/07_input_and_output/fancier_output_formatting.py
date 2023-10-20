@@ -98,4 +98,3 @@ print('3.14159265359'.zfill(5))
 
 # Old string formatting
 print('The value of pi is approximately %5.3f.' % math.pi)
-

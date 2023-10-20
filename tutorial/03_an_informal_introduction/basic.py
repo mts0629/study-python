@@ -175,4 +175,3 @@ Usage: thingy [OPTIONS]
 
 if __name__ == "__main__":
     main()
-

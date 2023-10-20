@@ -13,4 +13,3 @@ def test_sysexit() -> None:
     """Test that SystemExit(1) is raised."""
     with pytest.raises(SystemExit):
         f()
-

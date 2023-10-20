@@ -10,4 +10,3 @@ if age < 18:
     child = True
 else:
     child = False
-

@@ -48,4 +48,3 @@ def optionals(condition: bool) -> None:
     # use an assert
     assert x is not None
     print(x.upper())
-

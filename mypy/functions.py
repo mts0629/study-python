@@ -66,5 +66,3 @@ class SomeClass:
         reveal_type(kwargs) # Revealed type is "builtins.dict[builtins.str, builtins.str]"
         request = make_request(*args, **kwargs)
         return self.do_api_query(request)
-
-
