@@ -1,43 +1,38 @@
 # study-python
 
-Pythonの学習
+Study of Python
 
-## 環境
+- `tutorial/` ... Python official tutorial
+- `packages/` ... Tutorial for 3rd party packages
 
-- OS：Ubuntu 20.04 LTS (native/WSL2)
-- Python 3.11.4
-    - [Release](https://www.python.org/downloads/release/python-3114/)
-    - インストール
-        ```sh
-        $ ./configure
-        $ make
-        $ make test
-        $ sudo make install
-        ```
-        - pipがSSL moduleのエラーで失敗していたが、Requirementsを見直して再度ビルドすることにより解消した
-            [pyenv/Troubleshooting/FAQ/Suggested build environment](https://github.com/pyenv/pyenv/wiki#suggested-build-environment)
-            ```sh
-            $ sudo apt update; sudo apt install build-essential libssl-dev zlib1g-dev \
-            libbz2-dev libreadline-dev libsqlite3-dev curl \
-            libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
-            ```
-- 仮想環境：venv
-    - `$ python -m venv .venv && source .venv/bin/activate`
-- mypy 1.4.1
-- pytest 7.4.0
+## Tools and dependencies
 
-## ソースコード・著作権
+- Python
+    - [3.11.4 - Release](https://www.python.org/downloads/release/python-3114/)
+        - Resolve SSL error on installation by: [pyenv/Troubleshooting/FAQ/Suggested build environment](https://github.com/pyenv/pyenv/wiki#suggested-build-environment)
+- venv
+- [mypy](https://github.com/python/mypy) (1.4.1)
+- [pytest](https://github.com/pytest-dev/pytest) (7.4.0)
 
-本リポジトリに含まれるソースコードは、下記で公開されている内容を元に改変を加えたものです。
+## License
 
-未改変部の著作権は、原著作者様に帰属します。
+Following licenses are applied for each project.
+
+- `tutorial/` ... Python Software Foundation License (PSFL)
+- `packages/`
+    - `mypy/` ... MIT License
+    - `pytest/` ... MIT License
+
+Source codes in following directories are based on the contents in each reference  and following changes are included:
 
 - [The Python Tutorial](https://docs.python.org/3/tutorial/index.html)
 - [mypy documentation](https://mypy.readthedocs.io/en/stable/index.html)
 - [pytest documentation](https://docs.pytest.org/en/7.4.x/index.html)
 
-### 改変点
+and following changes are included:
 
-- コーディングスタイルの調整
-- コメントの追加
-- ファイル構成
+- Changes for coding style
+- Comments
+- Modification for the project structure
+
+Copyright for non-modified parts belongs to the original author.
