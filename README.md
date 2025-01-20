@@ -4,6 +4,7 @@ Study of Python
 
 - `tutorial/` ... Python official tutorial
 - `packages/` ... Tutorial for 3rd party packages
+- `playground/` ... Small projects
 
 ## Tools and dependencies
 
