@@ -1,16 +1,28 @@
 #!/usr/bin/python
 
 import argparse
-import math
 import time
+from typing import Callable
 
 
-def is_prime(n: int) -> bool:
-    root_n = math.floor(math.sqrt(n))
-    for i in range(2, root_n):
+def _check_by_sqrt(n: int) -> bool:
+    if n < 2:
+        return False
+
+    i = 2
+    while i * i <= n:
         if n % i == 0:
             return False
+        i += 1
     return True
+
+
+def _print_prime_numbers_by_n(
+    n: int, check_func: Callable[[int], bool]
+) -> None:
+    for i in range(2, (n + 1)):
+        if check_func(i):
+            print(i)
 
 
 def _get_args() -> argparse.Namespace:
@@ -22,7 +34,7 @@ def _get_args() -> argparse.Namespace:
         "n",
         metavar="N",
         type=int,
-        help="maximum number to be checked (> 2)"
+        help="maximum number to be checked (>= 2)"
     )
 
     return parser.parse_args()
@@ -32,15 +44,13 @@ def main() -> None:
     args = _get_args()
 
     if args.n < 2:
-        print("Number must be more than 2")
+        print("Number must be >= 2")
         return
 
     print(f"Prime numbers until {args.n}:")
     start = time.time()
 
-    for i in range(2, (args.n + 1)):
-        if is_prime(i):
-            print(i)
+    _print_prime_numbers_by_n(args.n, _check_by_sqrt)
 
     end = time.time()
     print(f"Elapsed: {end - start}[sec]")
