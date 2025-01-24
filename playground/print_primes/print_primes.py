@@ -2,7 +2,7 @@
 
 import argparse
 import time
-from typing import Callable
+from typing import Callable, List
 
 
 def _trial_division_naive(n: int) -> bool:
@@ -27,12 +27,15 @@ def _trial_division_by_sqrt(n: int) -> bool:
     return True
 
 
-def _print_prime_numbers_by_n(
+def _get_prime_numbers_by_n(
     n: int, is_prime: Callable[[int], bool]
-) -> None:
+) -> List[int]:
+    prime_numbers = []
     for i in range(2, (n + 1)):
         if is_prime(i):
-            print(i)
+            prime_numbers.append(i)
+
+    return prime_numbers
 
 
 def _get_args() -> argparse.Namespace:
@@ -66,13 +69,13 @@ def main() -> None:
         else _trial_division_naive
 
     print(f"Prime numbers by {args.n}:")
+
     start = time.time()
-
-    _print_prime_numbers_by_n(args.n, test_func)
-
+    prime_numbers = _get_prime_numbers_by_n(args.n, test_func)
     end = time.time()
-    print(f"Elapsed: {end - start}[sec]")
         
+    print(prime_numbers)
+    print(f"Elapsed: {end - start}[sec]")
 
 if __name__ == "__main__":
     main()
