@@ -2,10 +2,11 @@
 
 import argparse
 import time
+from functools import partial
 from typing import Callable, List
 
 
-def _trial_division_naive(n: int) -> bool:
+def _test_naive(n: int) -> bool:
     if n < 2:
         return False
     i = 2
@@ -16,7 +17,7 @@ def _trial_division_naive(n: int) -> bool:
     return True
 
 
-def _trial_division_by_sqrt(n: int) -> bool:
+def _test_by_sqrt(n: int) -> bool:
     if n < 2:
         return False
     i = 2
@@ -27,15 +28,40 @@ def _trial_division_by_sqrt(n: int) -> bool:
     return True
 
 
-def _get_prime_numbers_by_n(
-    n: int, is_prime: Callable[[int], bool]
+def _trial_division(
+    test_func: Callable[[int], bool], n: int, 
 ) -> List[int]:
     prime_numbers = []
     for i in range(2, (n + 1)):
-        if is_prime(i):
+        if test_func(i):
             prime_numbers.append(i)
 
     return prime_numbers
+
+
+def _sieve_of_eratosthenes(n: int) -> List[int]:
+    # Flags for numbers <= n
+    # when flags[n] = True, n is prime
+    flags = [True] * (n + 1)
+    # 0, 1 aren't prime
+    flags[0] = flags[1] = False
+
+    p = 2
+    while p * p <= n:
+        # Multiples of p aren't prime
+        mult_p = p * p
+        while mult_p <= n:
+            flags[mult_p] = False
+            mult_p += p
+
+        # Get the next number with True
+        while True:
+            p += 1
+            if flags[p]:
+                break
+
+    # Return numbers which flag is True
+    return [n for n, flag in enumerate(flags) if flag]
 
 
 def _get_args() -> argparse.Namespace:
@@ -54,6 +80,11 @@ def _get_args() -> argparse.Namespace:
         action="store_true",
         help="adopt trial division by sqrt(n)"
     )
+    parser.add_argument(
+        "--sieve",
+        action="store_true",
+        help="adopt \"Sieve of Eratosthenes\""
+    )
 
     return parser.parse_args()
 
@@ -65,17 +96,24 @@ def main() -> None:
         print("Number must be >= 2")
         return
 
-    test_func = _trial_division_by_sqrt if args.by_sqrt \
-        else _trial_division_naive
+    if args.sieve:
+        get_prime_numbers = _sieve_of_eratosthenes
+    else:
+        test_func = _test_by_sqrt if args.by_sqrt \
+            else _test_naive
+
+        get_prime_numbers = partial(_trial_division, test_func)
+
 
     print(f"Prime numbers by {args.n}:")
 
     start = time.time()
-    prime_numbers = _get_prime_numbers_by_n(args.n, test_func)
+    prime_numbers = get_prime_numbers(args.n)
     end = time.time()
         
     print(prime_numbers)
     print(f"Elapsed: {end - start}[sec]")
+
 
 if __name__ == "__main__":
     main()
