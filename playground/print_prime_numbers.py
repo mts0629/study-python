@@ -29,7 +29,8 @@ def _test_by_sqrt(n: int) -> bool:
 
 
 def _trial_division(
-    test_func: Callable[[int], bool], n: int, 
+    test_func: Callable[[int], bool],
+    n: int,
 ) -> List[int]:
     prime_numbers = []
     for i in range(2, (n + 1)):
@@ -73,17 +74,15 @@ def _get_args() -> argparse.Namespace:
         "n",
         metavar="N",
         type=int,
-        help="maximum number to find prime numbers (>= 2)"
+        help="maximum number to find prime numbers (>= 2)",
     )
     parser.add_argument(
         "--by_sqrt",
         action="store_true",
-        help="adopt trial division by sqrt(n)"
+        help="adopt trial division by sqrt(n)",
     )
     parser.add_argument(
-        "--sieve",
-        action="store_true",
-        help="adopt \"Sieve of Eratosthenes\""
+        "--sieve", action="store_true", help='adopt "Sieve of Eratosthenes"'
     )
 
     return parser.parse_args()
@@ -99,18 +98,16 @@ def main() -> None:
     if args.sieve:
         get_prime_numbers = _sieve_of_eratosthenes
     else:
-        test_func = _test_by_sqrt if args.by_sqrt \
-            else _test_naive
+        test_func = _test_by_sqrt if args.by_sqrt else _test_naive
 
         get_prime_numbers = partial(_trial_division, test_func)
-
 
     print(f"Prime numbers by {args.n}:")
 
     start = time.time()
     prime_numbers = get_prime_numbers(args.n)
     end = time.time()
-        
+
     print(prime_numbers)
     print(f"{len(prime_numbers)} numbers")
     print(f"Elapsed: {end - start}[sec]")
