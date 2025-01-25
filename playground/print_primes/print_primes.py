@@ -112,6 +112,7 @@ def main() -> None:
     end = time.time()
         
     print(prime_numbers)
+    print(f"{len(prime_numbers)} numbers")
     print(f"Elapsed: {end - start}[sec]")
 
 
