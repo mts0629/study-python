@@ -1,3 +1,4 @@
+import argparse
 import sqlite3
 from pathlib import Path
 from typing import Any, List, Union
@@ -13,7 +14,7 @@ class WordBookDB:
             f"""
             CREATE TABLE IF NOT EXISTS {self.table}(
                 word STRING PRIMARY KEY,
-                mean STRING
+                meaning STRING
             )
             """
         )
@@ -24,7 +25,7 @@ class WordBookDB:
         cur = self.con.cursor()
 
         cur.execute(
-            f"INSERT INTO {self.table} (word, mean) VALUES (?, ?)",
+            f"INSERT INTO {self.table} (word, meaning) VALUES (?, ?)",
             (word, mean),
         )
 
@@ -41,12 +42,48 @@ class WordBookDB:
         self.con.close()
 
 
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Wordbook by sqlite")
+
+    parser.add_argument(
+        "-d",
+        "--database",
+        type=Path,
+        default="./wordbook.db",
+        help='path to sqlite DB file (default: "./wordbook.db")',
+    )
+    parser.add_argument(
+        "-a",
+        "--add-entry",
+        type=str,
+        metavar=("WORD", "MEANING"),
+        nargs=2,
+        help="add new entry, pair of word and its meaning",
+    )
+    parser.add_argument(
+        "-s", "--search-word", metavar="WORD", type=str, help="search a word"
+    )
+
+    return parser.parse_args()
+
+
 def main() -> None:
-    db = WordBookDB("wordbook.db")
+    args = _parse_args()
 
-    db.add_entry("hello", "こんにちは")
+    db = WordBookDB(args.database)
 
-    print(db.search_word("hello"))
+    if args.add_entry:
+        word = args.add_entry[0]
+        meaning = args.add_entry[1]
+        db.add_entry(word, meaning)
+
+    if args.search_word:
+        results = db.search_word(args.search_word)
+        if results:
+            for result in results:
+                print(f"{result[0]} : {result[1]}")
+        else:
+            print(f'No entry for the word "{args.search_word}"')
 
 
 if __name__ == "__main__":
