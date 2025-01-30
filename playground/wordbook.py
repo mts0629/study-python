@@ -1,7 +1,7 @@
 import argparse
 import sqlite3
 from pathlib import Path
-from typing import Any, List, Union
+from typing import List, Tuple, Union
 
 
 class WordBookDB:
@@ -21,21 +21,26 @@ class WordBookDB:
 
         self.con.commit()
 
-    def add_entry(self, word: str, mean: str) -> None:
+    def add_entry(self, word: str, meaning: str) -> None:
         cur = self.con.cursor()
-
         cur.execute(
             f"INSERT INTO {self.table} (word, meaning) VALUES (?, ?)",
-            (word, mean),
+            (word, meaning),
         )
-
         self.con.commit()
 
-    def search_word(self, word: str) -> List[Any]:
+    def search_words(self, word: str) -> List[Tuple[str, str]]:
         cur = self.con.cursor()
+        res = cur.execute(
+            f"SELECT * FROM {self.table} WHERE word LIKE '{word}'"
+        )
+        return res.fetchall()
 
-        res = cur.execute(f"SELECT * FROM {self.table} WHERE word='{word}'")
-
+    def search_meanings(self, meaning: str) -> List[Tuple[str, str]]:
+        cur = self.con.cursor()
+        res = cur.execute(
+            f"SELECT * FROM {self.table} WHERE meaning LIKE '{meaning}'"
+        )
         return res.fetchall()
 
     def __del__(self):
@@ -61,7 +66,14 @@ def _parse_args() -> argparse.Namespace:
         help="add new entry, pair of word and its meaning",
     )
     parser.add_argument(
-        "-s", "--search-word", metavar="WORD", type=str, help="search a word"
+        "-w", "--search-word", metavar="WORD", type=str, help="search a word"
+    )
+    parser.add_argument(
+        "-m",
+        "--search-meaning",
+        metavar="MEANING",
+        type=str,
+        help="search a word by meaning",
     )
 
     return parser.parse_args()
@@ -73,17 +85,24 @@ def main() -> None:
     db = WordBookDB(args.database)
 
     if args.add_entry:
-        word = args.add_entry[0]
-        meaning = args.add_entry[1]
+        word, meaning = args.add_entry
         db.add_entry(word, meaning)
 
     if args.search_word:
-        results = db.search_word(args.search_word)
+        results = db.search_words(args.search_word)
         if results:
             for result in results:
                 print(f"{result[0]} : {result[1]}")
         else:
             print(f'No entry for the word "{args.search_word}"')
+
+    if args.search_meaning:
+        results = db.search_meanings(args.search_meaning)
+        if results:
+            for result in results:
+                print(f"{result[0]} : {result[1]}")
+        else:
+            print(f'No entry for the meaning "{args.search_meaning}"')
 
 
 if __name__ == "__main__":
