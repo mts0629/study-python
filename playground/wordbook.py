@@ -29,17 +29,20 @@ class WordBookDB:
         )
         self.con.commit()
 
+    def __replace_wildcard(self, expr: str) -> str:
+        return expr.translate(str.maketrans({"*": "%", "?": "_"}))
+
     def search_words(self, word: str) -> List[Tuple[str, str]]:
         cur = self.con.cursor()
         res = cur.execute(
-            f"SELECT * FROM {self.table} WHERE word LIKE '{word}'"
+            f"SELECT * FROM {self.table} WHERE word LIKE '{self.__replace_wildcard(word)}'"
         )
         return res.fetchall()
 
     def search_meanings(self, meaning: str) -> List[Tuple[str, str]]:
         cur = self.con.cursor()
         res = cur.execute(
-            f"SELECT * FROM {self.table} WHERE meaning LIKE '{meaning}'"
+            f"SELECT * FROM {self.table} WHERE meaning LIKE '{self.__replace_wildcard(meaning)}'"
         )
         return res.fetchall()
 
@@ -66,14 +69,18 @@ def _parse_args() -> argparse.Namespace:
         help="add new entry, pair of word and its meaning",
     )
     parser.add_argument(
-        "-w", "--search-word", metavar="WORD", type=str, help="search a word"
+        "-w",
+        "--search-word",
+        metavar="WORD",
+        type=str,
+        help="search a word, wildcard ('*'/'?') can be used",
     )
     parser.add_argument(
         "-m",
         "--search-meaning",
         metavar="MEANING",
         type=str,
-        help="search a word by meaning",
+        help="search a word by meaning, wildcard ('*'/'?') can be used",
     )
 
     return parser.parse_args()
