@@ -8,11 +8,11 @@ Study of Python
 
 ## Environment
 
-- Python
-    - [3.11.4 - Release](https://www.python.org/downloads/release/python-3114/)
+- Python 3.11.4
+    - [Release](https://www.python.org/downloads/release/python-3114/)
         - Resolve SSL error on installation by: [pyenv/Troubleshooting/FAQ/Suggested build environment](https://github.com/pyenv/pyenv/wiki#suggested-build-environment)
 - venv
-- pip
+- pip 23.1.2
 
 List of packages (`pip list --format freeze`)
 
@@ -43,17 +43,17 @@ wcwidth==0.2.13
 
 Following licenses are applied for each sub-project.
 
-- `tutorial/` ... Python Software Foundation License (PSFL)
+- `tutorial/`: Python Software Foundation License (PSFL)
 - `packages/`
-    - `mypy/` ... MIT License
-    - `pytest/` ... MIT License
-- `playground/` ... Unlicense
+    - `mypy/`: MIT License
+    - `pytest/`: MIT License
+- `playground/`: Unlicense
 
-Source codes in following directories are based on the contents in each reference  and following changes are included:
+Source codes in following directories are based on the contents in each reference:
 
-- [The Python Tutorial](https://docs.python.org/3/tutorial/index.html)
-- [mypy documentation](https://mypy.readthedocs.io/en/stable/index.html)
-- [pytest documentation](https://docs.pytest.org/en/7.4.x/index.html)
+- `tutorial/`: [The Python Tutorial](https://docs.python.org/3/tutorial/index.html)
+- `packages/mypy/`: [mypy documentation](https://mypy.readthedocs.io/en/stable/index.html)
+- `packages/pytest/`: [pytest documentation](https://docs.pytest.org/en/7.4.x/index.html)
 
 and following changes are included:
 
