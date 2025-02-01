@@ -5,6 +5,10 @@ from typing import List, Tuple, Union
 
 
 class WordBookDB:
+    """
+    Word book database.
+    """
+
     def __init__(self, file_name: Union[str, Path]):
         self.con = sqlite3.connect(Path(file_name))
         self.table = "wordbook"
@@ -22,6 +26,9 @@ class WordBookDB:
         self.con.commit()
 
     def add_entry(self, word: str, meaning: str) -> None:
+        """
+        Add new entry to the database.
+        """
         cur = self.con.cursor()
         cur.execute(
             f"INSERT INTO {self.table} (word, meaning) VALUES (?, ?)",
@@ -30,27 +37,36 @@ class WordBookDB:
         self.con.commit()
 
     def __replace_wildcard(self, expr: str) -> str:
-        return expr.translate(str.maketrans({"*": "%", "?": "_"}))
+        """
+        Replace wildcard characters: '*'/'?' to valid query for SQL 'LIKE' operator.
+        """
+        table = str.maketrans({"*": "%", "?": "_"})
+        return expr.translate(table)
 
-    def search_words(self, word: str) -> List[Tuple[str, str]]:
-        cur = self.con.cursor()
-        res = cur.execute(
-            f"SELECT * FROM {self.table} WHERE word LIKE '{self.__replace_wildcard(word)}'"
-        )
-        return res.fetchall()
+    def search_entries(self, word: str, meaning: str) -> List[Tuple[str, str]]:
+        """
+        Search entries from the database.
+        """
+        word = "*" if word is None else word
+        meaning = "*" if meaning is None else meaning
 
-    def search_meanings(self, meaning: str) -> List[Tuple[str, str]]:
         cur = self.con.cursor()
-        res = cur.execute(
-            f"SELECT * FROM {self.table} WHERE meaning LIKE '{self.__replace_wildcard(meaning)}'"
+        results = cur.execute(
+            f"SELECT * FROM {self.table}"
+            f" WHERE word LIKE '{self.__replace_wildcard(word)}'"
+            f" AND meaning LIKE '{self.__replace_wildcard(meaning)}'"
         )
-        return res.fetchall()
+
+        return results.fetchall()
 
     def __del__(self):
         self.con.close()
 
 
 def _parse_args() -> argparse.Namespace:
+    """
+    Parse commandline arguments.
+    """
     parser = argparse.ArgumentParser(description="Wordbook by sqlite")
 
     parser.add_argument(
@@ -86,6 +102,14 @@ def _parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def _print_entries(entries: List[Tuple[str, str]]) -> None:
+    """
+    Print database entries.
+    """
+    for entry in entries:
+        print(f"{entry[0]} : {entry[1]}")
+
+
 def main() -> None:
     args = _parse_args()
 
@@ -95,21 +119,12 @@ def main() -> None:
         word, meaning = args.add_entry
         db.add_entry(word, meaning)
 
-    if args.search_word:
-        results = db.search_words(args.search_word)
+    if args.search_word or args.search_meaning:
+        results = db.search_entries(args.search_word, args.search_meaning)
         if results:
-            for result in results:
-                print(f"{result[0]} : {result[1]}")
+            _print_entries(results)
         else:
-            print(f'No entry for the word "{args.search_word}"')
-
-    if args.search_meaning:
-        results = db.search_meanings(args.search_meaning)
-        if results:
-            for result in results:
-                print(f"{result[0]} : {result[1]}")
-        else:
-            print(f'No entry for the meaning "{args.search_meaning}"')
+            print("No matching entries")
 
 
 if __name__ == "__main__":
