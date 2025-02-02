@@ -36,6 +36,17 @@ class WordBookDB:
         )
         self.con.commit()
 
+    def remove_entry(self, word: str) -> None:
+        """
+        Delete found entries from the database.
+        """
+        cur = self.con.cursor()
+        cur.execute(
+            f"DELETE FROM {self.table}"
+            f" WHERE word LIKE '{self.__replace_wildcard(word)}'"
+        )
+        self.con.commit()
+
     def __replace_wildcard(self, expr: str) -> str:
         """
         Replace wildcard characters: '*'/'?' to valid query for SQL 'LIKE' operator.
@@ -77,12 +88,19 @@ def _parse_args() -> argparse.Namespace:
         help='path to sqlite DB file (default: "./wordbook.db")',
     )
     parser.add_argument(
-        "-a",
+        "-e",
         "--add-entry",
         type=str,
         metavar=("WORD", "MEANING"),
         nargs=2,
         help="add new entry, pair of word and its meaning",
+    )
+    parser.add_argument(
+        "-r",
+        "--remove-entry",
+        type=str,
+        metavar="WORD",
+        help="remove specified word from the DB",
     )
     parser.add_argument(
         "-w",
@@ -119,12 +137,35 @@ def main() -> None:
         word, meaning = args.add_entry
         db.add_entry(word, meaning)
 
+    if args.remove_entry:
+        word = args.remove_entry
+
+        results = db.search_entries(word, args.search_meaning)
+        if results:
+            print("Found words:")
+            _print_entries(results)
+
+            while True:
+                yn = input(
+                    "Do you want to remove these words? (y/n): "
+                ).lower()
+                if yn == "y":
+                    db.remove_entry(word)
+                    break
+                elif yn == "n":
+                    print("Cancelled")
+                    break
+                else:
+                    print("Error: please input y/Y/n/N")
+        else:
+            print("No matching words")
+
     if args.search_word or args.search_meaning:
         results = db.search_entries(args.search_word, args.search_meaning)
         if results:
             _print_entries(results)
         else:
-            print("No matching entries")
+            print("No matching words")
 
 
 if __name__ == "__main__":
