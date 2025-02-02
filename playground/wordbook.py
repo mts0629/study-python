@@ -1,4 +1,5 @@
 import argparse
+import csv
 import sqlite3
 from pathlib import Path
 from typing import List, Tuple, Union
@@ -78,7 +79,9 @@ def _parse_args() -> argparse.Namespace:
     """
     Parse commandline arguments.
     """
-    parser = argparse.ArgumentParser(description="Wordbook by sqlite")
+    parser = argparse.ArgumentParser(
+        description="Word book by SQLite database"
+    )
 
     parser.add_argument(
         "-d",
@@ -93,7 +96,14 @@ def _parse_args() -> argparse.Namespace:
         type=str,
         metavar=("WORD", "MEANING"),
         nargs=2,
-        help="add new entry, pair of word and its meaning",
+        help="add new entry by pair of word and its meaning",
+    )
+    parser.add_argument(
+        "-f",
+        "--add-csv-entry",
+        type=Path,
+        metavar="CSV_PATH",
+        help="add new entry by pair of word and its meaning, in CSV file",
     )
     parser.add_argument(
         "-r",
@@ -120,6 +130,16 @@ def _parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def _get_csv_rows(csv_file: Path) -> List[List[str]]:
+    """
+    Get rows in a CSV file.
+    """
+    with open(csv_file, "r", encoding="utf-8") as f:
+        reader = csv.reader(f)
+        rows = [row for row in reader]
+    return rows
+
+
 def _print_entries(entries: List[Tuple[str, str]]) -> None:
     """
     Print database entries.
@@ -136,6 +156,15 @@ def main() -> None:
     if args.add_entry:
         word, meaning = args.add_entry
         db.add_entry(word, meaning)
+
+    if args.add_csv_entry:
+        csv_file = args.add_csv_entry
+        if not csv_file.exists():
+            print(f'File not found: "{csv_file}"')
+        else:
+            rows = _get_csv_rows(csv_file)
+            for row in rows:
+                db.add_entry(row[0], row[1])
 
     if args.remove_entry:
         word = args.remove_entry
