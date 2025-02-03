@@ -18,7 +18,7 @@ class WordBookDB:
         cur.execute(
             f"""
             CREATE TABLE IF NOT EXISTS {self.table}(
-                word STRING PRIMARY KEY,
+                word STRING,
                 meaning STRING
             )
             """
@@ -69,7 +69,7 @@ class WordBookDB:
             f" AND meaning LIKE '{self.__replace_wildcard(meaning)}'"
         )
 
-        return results.fetchall()
+        return sorted(results.fetchall())
 
     def __del__(self):
         self.con.close()
@@ -144,8 +144,8 @@ def _print_entries(entries: List[Tuple[str, str]]) -> None:
     """
     Print database entries.
     """
-    for entry in entries:
-        print(f"{entry[0]} : {entry[1]}")
+    for word, meaning in entries:
+        print(f"{word} : {meaning}")
 
 
 def main() -> None:
@@ -164,7 +164,9 @@ def main() -> None:
         else:
             rows = _get_csv_rows(csv_file)
             for row in rows:
-                db.add_entry(row[0], row[1])
+                word, meaning = row[0], row[1]
+                if not db.search_entries(word, meaning):
+                    db.add_entry(word, meaning)
 
     if args.remove_entry:
         word = args.remove_entry
