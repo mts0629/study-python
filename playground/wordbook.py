@@ -144,8 +144,13 @@ def _print_entries(entries: List[Tuple[str, str]]) -> None:
     """
     Print database entries.
     """
+    max_word_len = max([len(entry[0]) for entry in entries])
+    max_meaning_len = max([len(entry[1]) for entry in entries])
+
+    print(f"{'-' * max_word_len}---{'-' * max_meaning_len}")
     for word, meaning in entries:
-        print(f"{word} : {meaning}")
+        print(f"{word:{max_word_len}} | {meaning}")
+    print(f"{'-' * max_word_len}---{'-' * max_meaning_len}")
 
 
 def main() -> None:
