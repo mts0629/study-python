@@ -12,18 +12,27 @@ class WordBookDB:
 
     def __init__(self, file_name: Union[str, Path]):
         self.con = sqlite3.connect(Path(file_name))
-        self.table = "wordbook"
+        self.words_table = "words"
+        self.meanings_table = "meanings"
 
         cur = self.con.cursor()
         cur.execute(
             f"""
-            CREATE TABLE IF NOT EXISTS {self.table}(
-                word STRING,
-                meaning STRING
+            CREATE TABLE IF NOT EXISTS {self.words_table}(
+                id SERIAL PRIMARY KEY,
+                word STRING NOT NULL
             )
             """
         )
-
+        cur.execute(
+            f"""
+            CREATE TABLE IF NOT EXISTS {self.meanings_table}(
+                id SERIAL PRIMARY KEY,
+                word_id INTEGER NOT NULL REFERENCES words(id),
+                meaning STRING NOT NULL
+            )
+            """
+        )
         self.con.commit()
 
     def add_entry(self, word: str, meaning: str) -> None:
@@ -31,9 +40,20 @@ class WordBookDB:
         Add new entry to the database.
         """
         cur = self.con.cursor()
+        results = cur.execute(
+            f"SELECT * FROM {self.words_table} WHERE word LIKE '{word}'"
+        )
+        if not results:
+            cur.execute(f"INSERT INTO {self.words_table} word VALUE '{word}'")
+            self.con.commit()
+
+        results = cur.execute(
+            f"SELECT * FROM {self.words_table} WHERE word LIKE '{word}'"
+        )
+        _, id = results.fetch()
+
         cur.execute(
-            f"INSERT INTO {self.table} (word, meaning) VALUES (?, ?)",
-            (word, meaning),
+            f"INSERT INTO {self.meanings_table} (word_id, meaning) VALUES ({id}, '{meaning}')"
         )
         self.con.commit()
 
@@ -64,9 +84,12 @@ class WordBookDB:
 
         cur = self.con.cursor()
         results = cur.execute(
-            f"SELECT * FROM {self.table}"
-            f" WHERE word LIKE '{self.__replace_wildcard(word)}'"
-            f" AND meaning LIKE '{self.__replace_wildcard(meaning)}'"
+            f"SELECT w.word, m.meaning"
+            f" FROM {self.words_table} w"
+            f" JOIN {self.meanings_table} m ON w.id = m.word_id"
+            f" WHERE w.word LIKE '{self.__replace_wildcard(word)}'"
+            f" AND m.meaning LIKE '{self.__replace_wildcard(meaning)}'"
+            f" ORDER BY w.word"
         )
 
         return sorted(results.fetchall())
