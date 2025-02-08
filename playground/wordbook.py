@@ -2,7 +2,7 @@ import argparse
 import csv
 import sqlite3
 from pathlib import Path
-from typing import List, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
 
 class WordBookDB:
@@ -12,18 +12,20 @@ class WordBookDB:
 
     def __init__(self, file_name: Union[str, Path]):
         self.con = sqlite3.connect(Path(file_name))
-        self.words_table = "words"
+        self.word_table = "words"
         self.meanings_table = "meanings"
 
         cur = self.con.cursor()
+        # Word table
         cur.execute(
             f"""
-            CREATE TABLE IF NOT EXISTS {self.words_table}(
-                id SERIAL PRIMARY KEY,
+            CREATE TABLE IF NOT EXISTS {self.word_table}(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
                 word STRING NOT NULL
             )
             """
         )
+        # Meanings table
         cur.execute(
             f"""
             CREATE TABLE IF NOT EXISTS {self.meanings_table}(
@@ -40,20 +42,28 @@ class WordBookDB:
         Add new entry to the database.
         """
         cur = self.con.cursor()
+
+        # Check whether a word already exists
         results = cur.execute(
-            f"SELECT * FROM {self.words_table} WHERE word LIKE '{word}'"
+            f"SELECT * FROM {self.word_table} WHERE word = '{word}'"
         )
-        if not results:
-            cur.execute(f"INSERT INTO {self.words_table} word VALUE '{word}'")
+        entry = results.fetchone()
+
+        if not entry:
+            # If not exist, insert the word into the word table
+            cur.execute(
+                f"INSERT INTO {self.word_table} (word) VALUES ('{word}')"
+            )
             self.con.commit()
+            results = cur.execute(
+                f"SELECT * FROM {self.word_table} WHERE word = '{word}'"
+            )
+            entry = results.fetchone()
 
-        results = cur.execute(
-            f"SELECT * FROM {self.words_table} WHERE word LIKE '{word}'"
-        )
-        _, id = results.fetch()
-
+        # Insert a new meaning of the word (specified by ID) into the meanings table
+        word_id = entry[0]
         cur.execute(
-            f"INSERT INTO {self.meanings_table} (word_id, meaning) VALUES ({id}, '{meaning}')"
+            f"INSERT INTO {self.meanings_table} (word_id, meaning) VALUES ({word_id}, '{meaning}')"
         )
         self.con.commit()
 
@@ -62,9 +72,18 @@ class WordBookDB:
         Delete found entries from the database.
         """
         cur = self.con.cursor()
+
+        entry = cur.execute(
+            f"SELECT * FROM {self.word_table} WHERE word = '{word}'"
+        ).fetchone()
+        word_id = entry[0]
+
         cur.execute(
-            f"DELETE FROM {self.table}"
+            f"DELETE FROM {self.word_table}"
             f" WHERE word LIKE '{self.__replace_wildcard(word)}'"
+        )
+        cur.execute(
+            f"DELETE FROM {self.meanings_table} WHERE word_id = {word_id}"
         )
         self.con.commit()
 
@@ -75,7 +94,7 @@ class WordBookDB:
         table = str.maketrans({"*": "%", "?": "_"})
         return expr.translate(table)
 
-    def search_entries(self, word: str, meaning: str) -> List[Tuple[str, str]]:
+    def search_entries(self, word: str, meaning: str) -> Dict[str, List[str]]:
         """
         Search entries from the database.
         """
@@ -83,16 +102,24 @@ class WordBookDB:
         meaning = "*" if meaning is None else meaning
 
         cur = self.con.cursor()
-        results = cur.execute(
+        # Join a word and meanings from the tables
+        entries = cur.execute(
             f"SELECT w.word, m.meaning"
-            f" FROM {self.words_table} w"
+            f" FROM {self.word_table} w"
             f" JOIN {self.meanings_table} m ON w.id = m.word_id"
             f" WHERE w.word LIKE '{self.__replace_wildcard(word)}'"
             f" AND m.meaning LIKE '{self.__replace_wildcard(meaning)}'"
             f" ORDER BY w.word"
-        )
+        ).fetchall()
 
-        return sorted(results.fetchall())
+        # Create a dict which collects meanings for each word
+        word_dict: Dict[str, List[str]] = {}
+        for word, meaning in entries:
+            if word not in word_dict.keys():
+                word_dict[word] = []
+            word_dict[word].append(meaning)
+
+        return word_dict
 
     def __del__(self):
         self.con.close()
@@ -163,17 +190,31 @@ def _get_csv_rows(csv_file: Path) -> List[List[str]]:
     return rows
 
 
-def _print_entries(entries: List[Tuple[str, str]]) -> None:
+def _print_entries(entries: Dict[str, List[str]]) -> None:
     """
     Print database entries.
     """
-    max_word_len = max([len(entry[0]) for entry in entries])
-    max_meaning_len = max([len(entry[1]) for entry in entries])
+    # Column width by max. word/meaning length
+    word_col_width = max([len(w) for w in entries.keys()])
+    meaning_col_width = max(
+        [max([len(m) for m in ms]) for ms in entries.values()]
+    )
 
-    print(f"{'-' * max_word_len}---{'-' * max_meaning_len}")
-    for word, meaning in entries:
-        print(f"{word:{max_word_len}} | {meaning}")
-    print(f"{'-' * max_word_len}---{'-' * max_meaning_len}")
+    # Header
+    print(f"{'-' * word_col_width}---{'-' * meaning_col_width}")
+
+    # Print word and meanings
+    for word, meanings in entries.items():
+        if len(meanings) == 1:
+            print(f"{word:{word_col_width}} | {meanings[0]}")
+        else:
+            # If the word has multiple meanings, index and print them per line
+            for i, meaning in enumerate(meanings):
+                word_col = word if i == 0 else ""
+                print(f"{word_col:{word_col_width}} | {i + 1}. {meaning}")
+
+    # Footer
+    print(f"{'-' * word_col_width}---{'-' * meaning_col_width}")
 
 
 def main() -> None:
@@ -193,6 +234,7 @@ def main() -> None:
             rows = _get_csv_rows(csv_file)
             for row in rows:
                 word, meaning = row[0], row[1]
+                # Insert new entries, skip existing one
                 if not db.search_entries(word, meaning):
                     db.add_entry(word, meaning)
 
