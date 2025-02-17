@@ -29,13 +29,26 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         self.send_response(HTTPStatus.OK)
 
         # HTTP header
-        self.send_header("Content-type", "text/html; charset=utf-8")
+        self.send_header("Content-Type", "text/html; charset=utf-8")
         encoded_str = page_str.encode(encoding="utf-8")
         self.send_header("Content-Length", len(encoded_str))
         self.end_headers()
 
         # Message body
         self.wfile.write(encoded_str)
+
+    def do_POST(self):
+        """Actions for POST method: receive a request."""
+        content = f"POST {self.path}"
+
+        self.send_response(HTTPStatus.OK)
+
+        self.send_header("Content-Type", "text/plain; charset=utf-8")
+        content = content.encode(encoding="utf-8")
+        self.send_header("Content-Length", len(content))
+        self.end_headers()
+
+        self.wfile.write(content)
 
 
 def run_server(
