@@ -14,7 +14,7 @@ page_str = """
 </head>
 <body>
     <h1>Server test</h1>
-    <p>Hello, world!</p>
+    {}
 </body>
 </html>
 """
@@ -28,9 +28,11 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         # Status code
         self.send_response(HTTPStatus.OK)
 
+        message = "<p>Hello, world!</p>"
+        encoded_str = page_str.format(message).encode(encoding="utf-8")
+
         # HTTP header
         self.send_header("Content-Type", "text/html; charset=utf-8")
-        encoded_str = page_str.encode(encoding="utf-8")
         self.send_header("Content-Length", len(encoded_str))
         self.end_headers()
 
@@ -38,17 +40,22 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(encoded_str)
 
     def do_POST(self):
-        """Actions for POST method: receive a request."""
-        content = f"POST {self.path}"
+        """Actions for POST method: receive data and send HTML strings with data."""
+        # Get data from POST method
+        length = int(self.headers.get("Content-Length", 0))
+        post_data = self.rfile.read(length)
+
+        # Embed the data to HTML
+        message = "<p>Received: {}</p>".format(post_data.decode("utf-8"))
+        encoded_str = page_str.format(message).encode(encoding="utf-8")
 
         self.send_response(HTTPStatus.OK)
 
-        self.send_header("Content-Type", "text/plain; charset=utf-8")
-        content = content.encode(encoding="utf-8")
-        self.send_header("Content-Length", len(content))
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", len(encoded_str))
         self.end_headers()
 
-        self.wfile.write(content)
+        self.wfile.write(encoded_str)
 
 
 def run_server(
